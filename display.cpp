@@ -42,8 +42,18 @@ void Display::Clear(float r, float g, float b, float a){
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Display::ListenInput(){
-     SDL_Event e;
+void Display::ListenInput(Camera *camera){
+    SDL_Event e;
+
+    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+
+    if(keystate[SDL_SCANCODE_W]){
+        camera->moveFront();    
+    }
+
+    if(keystate[SDL_SCANCODE_S]){
+        camera->moveBack();   
+    }
      while(SDL_PollEvent(&e)){
         switch( e.type ){
             case SDL_QUIT:

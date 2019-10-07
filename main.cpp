@@ -37,7 +37,7 @@ int main(int argc, char* argv[]){
 
     Mesh mesh(vertices,sizeof(vertices)/sizeof(vertices[0]));
 
-    Camera camera(glm::vec3(0.0f,0.0f,3.0f),glm::vec3(0.0f,0.0f,-1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,45.0f);
+    Camera camera(glm::vec3(0.0f,0.0f,3.0f),glm::vec3(0.0f,0.0f,-1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,45.0f,0.001f);
 
     //Create projection matrix
     glm::mat4 projection = glm::perspective(glm::radians(45.0f),(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
         display.Clear(0.0f,0.15f,0.3f,1.0f);
         shader.setMat4("view",camera.getViewTransformation());
         mesh.Draw();
-        display.ListenInput();
+        display.ListenInput(&camera);
         display.Update();
     }
 
