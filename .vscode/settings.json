@@ -34,6 +34,17 @@
         "cstdarg": "cpp",
         "istream": "cpp",
         "ostream": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "atomic": "cpp",
+        "ctime": "cpp",
+        "deque": "cpp",
+        "algorithm": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "map": "cpp",
+        "memory": "cpp",
+        "memory_resource": "cpp",
+        "string": "cpp",
+        "iomanip": "cpp"
     }
 }

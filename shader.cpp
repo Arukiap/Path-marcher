@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "glm/gtc/type_ptr.hpp"
 
 static GLuint CreateShader(const std::string& text, GLenum shaderType);
 static std::string LoadShader(const std::string& fileName);
@@ -12,9 +13,6 @@ Shader::Shader(const std::string& fileName){
 
     for(unsigned int i = 0; i < NUM_SHADERS; i++)
         glAttachShader(program,shaders[i]);
-
-    glBindAttribLocation(program,0,"pos");
-    glBindAttribLocation(program,1,"texCoord");
 
     glLinkProgram(program);
     CheckShaderError(program,GL_LINK_STATUS,true,"Error in shader, linking failed: ");   
@@ -31,22 +29,16 @@ Shader::~Shader(){
     glDeleteProgram(program);
 }
 
-/*
- * Binds all the CPU values to GPU variables.
- * If you want to share any value with the shader program, this function is where to do so.
- * This function is called once every frame.
- */
-void Shader::Bind(unsigned const int timeTicks, unsigned const int displayWidth, unsigned const int displayHeight){
-
+void Shader::setInt(const GLchar* name, unsigned const int value){
     glUseProgram(program);
+    GLint uniformLocation = glGetUniformLocation(program,name);
+    glUniform1f(uniformLocation,value);
+}
 
-    //Pass display resolution as 2D vector to shaders
-    GLint resolutionUniformLocation = glGetUniformLocation(program,"systemResolution");
-    glUniform2f(resolutionUniformLocation,displayWidth,displayHeight);
-
-    //Pass system time (miliseconds since start of application) to shaders
-    GLint timeUniformLocation = glGetUniformLocation(program,"systemTime");
-    glUniform1f(timeUniformLocation,timeTicks);
+void Shader::setMat4(const GLchar* name, glm::mat4 value){
+    glUseProgram(program);
+    GLint uniformLocation = glGetUniformLocation(program,name);
+    glUniformMatrix4fv(uniformLocation,1,GL_FALSE,glm::value_ptr(value));
 }
 
 static GLuint CreateShader(const std::string& text, GLenum shaderType){

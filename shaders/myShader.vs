@@ -1,19 +1,12 @@
 #version 410 core
 
-/*
- * Vertex Shader - Only passes shared values from CPU to the fragment shader. 
- */
+layout (location = 0) in vec3 position;
 
-attribute vec3 pos;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
-varying float vSystemTime;
-varying vec2 vSystemResolution;
-
-uniform float systemTime;
-uniform vec2 systemResolution;
 
 void main(){
-    gl_Position = vec4(pos,1.0);
-    vSystemTime = systemTime;
-    vSystemResolution = systemResolution;
+    gl_Position = projection * view * model * vec4(aPos, 1.0f);
 }
