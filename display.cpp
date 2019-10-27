@@ -18,6 +18,10 @@ Display::Display(int width, int height, const std::string& title){
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     window =  SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_OPENGL);
+
+    //Hide mouse cursor and block it to middle of the screen
+    SDL_ShowCursor(SDL_DISABLE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     
     //GPU connects directly to the window, instead of being the OS in complete command of the window
     glContext = SDL_GL_CreateContext(window);
@@ -47,6 +51,10 @@ void Display::ListenInput(Camera *camera){
 
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 
+    const Uint32 mousestate = SDL_GetRelativeMouseState(&camera->m_currentMouseX,&camera->m_currentMouseY);
+
+    camera->updateYawAndPitch(0.1f);
+
     if(keystate[SDL_SCANCODE_W]){
         camera->moveFront();    
     }
@@ -54,10 +62,30 @@ void Display::ListenInput(Camera *camera){
     if(keystate[SDL_SCANCODE_S]){
         camera->moveBack();   
     }
+
+    if(keystate[SDL_SCANCODE_A]){
+        camera->moveLeft();    
+    }
+
+    if(keystate[SDL_SCANCODE_D]){
+        camera->moveRight();   
+    }
+
+    if(keystate[SDL_SCANCODE_SPACE]){
+        camera->moveUp();   
+    }
+
+    if(keystate[SDL_SCANCODE_LCTRL]){
+        camera->moveDown();   
+    }
+
      while(SDL_PollEvent(&e)){
         switch( e.type ){
             case SDL_QUIT:
                 isClosed = true;
+                break;
+            case SDL_MOUSEWHEEL:
+                camera->zoom(e.wheel.y,5);
                 break;
             default: break;
         }

@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include <glm/glm.hpp>
-#include "glm/gtc/matrix_transform.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
 class Camera {
     public:
@@ -10,7 +10,18 @@ class Camera {
         glm::mat4 getViewTransformation();
         void moveFront();
         void moveBack();
+        void moveLeft();
+        void moveRight();
+        void moveUp();
+        void moveDown();
+        void zoom(int zoomDirection, float zoomFactor);
+        void updateYawAndPitch(float sensitivity);
+        float getFov(){
+            return m_fov;
+        }
+        int m_currentMouseX, m_currentMouseY;
     private:
+    //m_vForward
         glm::vec3 m_position, m_front, m_up;
         float m_yaw,m_pitch,m_fov,m_speed;
 };
