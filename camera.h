@@ -19,6 +19,9 @@ class Camera {
         float getFov(){
             return m_fov;
         }
+        glm::vec3 getPosition(){
+            return m_position;
+        }
         int m_currentMouseX, m_currentMouseY;
     private:
     //m_vForward

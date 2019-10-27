@@ -35,10 +35,28 @@ void Shader::setInt(const GLchar* name, unsigned const int value){
     glUniform1f(uniformLocation,value);
 }
 
+void Shader::setFloat(const GLchar* name, const float value){
+    glUseProgram(program);
+    GLint uniformLocation = glGetUniformLocation(program,name);
+    glUniform1f(uniformLocation,value);
+}
+
 void Shader::setMat4(const GLchar* name, glm::mat4 value){
     glUseProgram(program);
     GLint uniformLocation = glGetUniformLocation(program,name);
     glUniformMatrix4fv(uniformLocation,1,GL_FALSE,glm::value_ptr(value));
+}
+
+void Shader::setVec2(const GLchar* name, glm::vec2 value){
+    glUseProgram(program);
+    GLint uniformLocation = glGetUniformLocation(program,name);
+    glUniform2f(uniformLocation,value.x,value.y);
+}
+
+void Shader::setVec3(const GLchar* name, glm::vec3 value){
+    glUseProgram(program);
+    GLint uniformLocation = glGetUniformLocation(program,name);
+    glUniform3f(uniformLocation,value.x,value.y,value.z);
 }
 
 static GLuint CreateShader(const std::string& text, GLenum shaderType){
