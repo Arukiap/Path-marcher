@@ -22,6 +22,12 @@ class Camera {
         glm::vec3 getPosition(){
             return m_position;
         }
+        glm::vec3 getFront(){
+            return m_front;
+        }
+        glm::vec3 getUp(){
+            return m_up;
+        }
         int m_currentMouseX, m_currentMouseY;
     private:
     //m_vForward

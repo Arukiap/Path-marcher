@@ -2,10 +2,9 @@
 
 in vec4 gl_FragCoord;
 
-varying mat4 v_view;
-varying mat4 v_projection;
 varying vec2 v_resolution;
 varying vec3 v_cameraPosition;
+varying mat3 v_cameraMatrix;
 varying float v_fov;
 
 //Ray Marching constants
@@ -45,20 +44,18 @@ float rayMarch(vec3 from, vec3 direction) {
 	return totalDistance;
 }
 
-vec3 rayDirection(float fov, vec2 size, vec2 fragCoord){
+vec3 rayDirection(float fov, vec2 size, vec2 fragCoord, mat3 cameraMatrix){
     vec2 xy = fragCoord - size / 2.0;
     float z = size.y / tan(radians(fov)/2.0);
-    return normalize(vec3(xy,z));
+    return ( cameraMatrix * normalize(vec3(xy,z)));
 }
 
 void main(){	
-    vec3 direction = rayDirection(v_fov,v_resolution,gl_FragCoord.xy);
 
-    vec3 worldDirection = (v_projection * v_view * vec4(direction,0.0)).xyz;
-
+    vec3 direction = rayDirection(v_fov,v_resolution,gl_FragCoord.xy, v_cameraMatrix);
     vec3 eye = v_cameraPosition;
 
-    float marchedDistance = rayMarch(eye,worldDirection);
+    float marchedDistance = rayMarch(eye,direction);
 
-    gl_FragColor = vec4(vec3(marchedDistance)/20,1.0);
+    gl_FragColor = vec4(vec3(marchedDistance/20),1.0);
 } 

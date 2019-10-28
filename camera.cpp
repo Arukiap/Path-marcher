@@ -63,5 +63,11 @@ void Camera::updateYawAndPitch(float sensitivity){
     front.y = sin(glm::radians(m_pitch));
     front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
 
+    glm::vec3 right;
+    right.x = sin(glm::radians(m_yaw));
+    right.y = 0.0;
+    right.z = -cos(glm::radians(m_yaw));
+
     m_front = glm::normalize(front);
+    m_up = glm::cross(front,right);
 }

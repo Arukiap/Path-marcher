@@ -8,8 +8,8 @@
 
 
 //System resolution in pixels
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 1200
+#define SCREEN_HEIGHT 720
 
 #ifdef _WIN32
 #define SEPARATOR "\\"
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
     Mesh mesh(vertices,sizeof(vertices)/sizeof(vertices[0]));
 
     //add into display class
-    Camera camera(glm::vec3(0.0f,0.0f,5.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,90.0f,0.001f);  
+    Camera camera(glm::vec3(0.0f,0.0f,2.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,90.0f,0.001f);  
     
     //Create model matrix
     glm::mat4 model = glm::mat4(1.0f);
@@ -51,17 +51,19 @@ int main(int argc, char* argv[]){
     //Create resolution vector to pass to shader            
     glm::vec2 resolution = glm::vec2(SCREEN_WIDTH,SCREEN_HEIGHT);
     
-    shader.setMat4("model",model);
+    //shader.setMat4("model",model);
     shader.setVec2("resolution",resolution);
 
     while(!display.IsClosed()){
         display.Clear(0.0f,0.15f,0.3f,1.0f);
         //Create projection matrix
-        glm::mat4 projection = glm::perspective(glm::radians(camera.getFov()),(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+        //glm::mat4 projection = glm::perspective(glm::radians(camera.getFov()),(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
         shader.setVec3("cameraPosition",camera.getPosition());
+        shader.setVec3("cameraUp",camera.getUp());
+        shader.setVec3("cameraFront",camera.getFront());
         shader.setFloat("fov",camera.getFov());
-        shader.setMat4("projection",projection);
-        shader.setMat4("view",camera.getViewTransformation());
+        //shader.setMat4("projection",projection);
+        //shader.setMat4("view",camera.getViewTransformation());
         mesh.Draw();
         display.ListenInput(&camera);
         display.Update();
