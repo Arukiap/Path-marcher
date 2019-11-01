@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
     Mesh mesh(vertices,sizeof(vertices)/sizeof(vertices[0]));
 
     //add into display class
-    Camera camera(glm::vec3(0.0f,0.0f,2.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,90.0f,0.001f);  
+    Camera camera(glm::vec3(0.0f,0.5f,2.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,90.0f,0.001f);  
     
     //Create model matrix
     glm::mat4 model = glm::mat4(1.0f);
