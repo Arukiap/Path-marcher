@@ -7,11 +7,13 @@ uniform vec3 cameraPosition;
 uniform vec3 cameraFront;
 uniform vec3 cameraUp;
 uniform float fov;
+uniform float time;
 
 varying vec2 v_resolution;
 varying vec3 v_cameraPosition;
 varying mat3 v_cameraMatrix;
 varying float v_fov;
+varying float v_time;
 
 void main(){
     gl_Position = position;
@@ -20,4 +22,5 @@ void main(){
     v_resolution = resolution;
     v_cameraPosition = cameraPosition;
     v_fov = fov;
+    v_time = time;
 }

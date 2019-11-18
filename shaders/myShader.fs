@@ -6,6 +6,7 @@ varying vec2 v_resolution;
 varying vec3 v_cameraPosition;
 varying mat3 v_cameraMatrix;
 varying float v_fov;
+varying float v_time;
 
 //Math constants
 const float PI = 3.1415926;
@@ -17,8 +18,13 @@ const float MAX_DIST = 100.0;
 const float EPSILON = 0.01;
 
 //Path marching constants and globals
-const int MAX_MARCH_DEPTH = 5;
+const int MAX_MARCH_DEPTH = 4;
+vec3 samplePixelColor = vec3(0.0,0.0,0.0);
 vec3 pixelColor = vec3(0.0,0.0,0.0);
+
+//Constants for multi sampling
+const int NUM_OF_SAMPLES = 2;
+
 
 //Scene constants
 const int sceneObjectNumber = 4;
@@ -43,8 +49,8 @@ struct Scene {
 
 //Scene instantiation
 const Scene globalScene = Scene(Object[sceneObjectNumber](
-	Object(vec3(0.5,-0.1,0.0),0.2,0,vec3(1.0,1.0,0.0),0.0,0,0),
-	Object(vec3(1.0,0.0,0.0),0.4,0,vec3(1.0,0.2,0.6),1.0,0,	1),
+	Object(vec3(0.5,-0.1,0.0),0.2,0,vec3(1.0,1.0,0.0),1.0,0,0),
+	Object(vec3(0.0,0.0,0.0),0.4,0,vec3(1.0,1.0,0.0),0.1,0,1),
 	Object(vec3(2.0,0.0,0.0),0.2,1,vec3(0.3,0.4,0.8),0.0,0,2),
 	Object(vec3(0.0,-0.3,0.0),10.0,2,vec3(1.0,1.0,1.0),0.0,0,3)
 ));
@@ -114,17 +120,40 @@ SceneCollision rayMarchScene(vec3 from, vec3 direction) {
  * Utilizes a vec2 seed in order to produce a random floating point value
  */
 float random(vec2 seed) {
-    return fract(sin(dot(seed.xy,vec2(20.234234,23490.234234)))*43758.985);
+    return fract(sin(dot(seed.xy,vec2(20.234234,23490.234234)))*v_time);
+}
+
+mat3 getTangentSpace(vec3 normal){
+
+	vec3 h = vec3(1.0,0.0,0.0);
+	if(abs(normal.x)>0.99){
+		h = vec3(0.0,0.0,1.0);
+	}
+
+	vec3 tangent = normalize(cross(normal,h));
+	vec3 binormal = normalize(cross(normal,tangent));
+	return mat3(tangent,binormal,normal);
 }
 
 /*
  * Utilizes two random floating point values to produce a random sample of a three-dimensional
  * vector on the normal hemisphere.
  */
-vec3 sampleHemisphere(float u1, float u2){
-	float r = sqrt(1.0-u1*u1);
-	float phi = 2*PI*u2;
-	return vec3(cos(phi)*r,sin(phi)*r,u1);
+vec3 sampleHemisphere(float u1, float u2, vec3 normal){
+	//float r = sqrt(1.0-u1*u1);
+	//float phi = 2*PI*u2;
+	//vec3 tangentSpaceDirection = vec3(cos(phi)*r,sin(phi)*r,u1);
+	//return tangentSpaceDirection*getTangentSpace(normal);
+	vec3 uu = normalize(cross(normal,vec3(0.0,1.0,1.0)));
+	vec3 vv = normalize(cross(uu,normal));
+
+	float ra = sqrt(u1);
+	float rx = ra*cos(10.2831*u2);
+	float ry = ra*sin(10.2831*u2);
+	float rz = sqrt(1.0-u1);
+	vec3 rr = vec3(rx*uu + ry*vv + rz*normal);
+
+	return normalize(rr);
 }
 
 /*
@@ -132,7 +161,7 @@ vec3 sampleHemisphere(float u1, float u2){
  */
 vec3 getNormal(vec3 surfacePoint){
 	float distanceToPoint = getClosestSceneObjectAsCollision(surfacePoint).distance;
-	vec2 e = vec2(.01,0); //epsilon vector
+	vec2 e = vec2(.1,0); //epsilon vector
 	vec3 normal = distanceToPoint - vec3(
         getClosestSceneObjectAsCollision(surfacePoint-e.xyy).distance,
         getClosestSceneObjectAsCollision(surfacePoint-e.yxy).distance,
@@ -191,28 +220,31 @@ vec3 getNormal(vec3 surfacePoint){
 /*
  * "Path marching" algorithm.
  */
-void march(vec3 from, vec3 direction, int depth) {
+void march(vec3 from, vec3 direction, int depth, int sampleNumber) {
 
 	while(depth <= MAX_MARCH_DEPTH){
 
 	SceneCollision intersectionWithScene = rayMarchScene(from,direction);
 
-	if(intersectionWithScene.objectId == -1) return;
+	if(intersectionWithScene.objectId == -1){
+		samplePixelColor+= sceneBackgroundColor*0.5/depth;
+		return;
+	};
 
 	Object intersectedObject = globalScene.sceneObjects[intersectionWithScene.objectId];
 
 	vec3 hitpoint = from + intersectionWithScene.distance * direction;
 
-	pixelColor += vec3(intersectedObject.emission);
-
 	vec3 normal = getNormal(hitpoint);
 
+	samplePixelColor += vec3(intersectedObject.emission);
+	
 	if(intersectedObject.surfaceType == 0){
-		float sample1 = random( gl_FragCoord.xy/v_resolution.xy );
-		float sample2 = random( v_resolution.xy/gl_FragCoord.xy );
-		vec3 newRayDirection = normal + sampleHemisphere(sample1,sample2);
+		float sample1 = random( gl_FragCoord.yx*sampleNumber/v_resolution.xy );
+		float sample2 = random( v_resolution.xy*sampleNumber/gl_FragCoord.xy );
+		vec3 newRayDirection = sampleHemisphere(sample1,sample2,normal);
 		float cost = dot(newRayDirection,normal);
-		pixelColor += cost*(intersectedObject.albedo)*0.1;
+		samplePixelColor += cost*(intersectedObject.albedo)*0.1/depth;
 		from = hitpoint;
 		direction = newRayDirection;
 	}
@@ -257,9 +289,15 @@ void main(){
     vec3 direction = rayDirection(v_fov,v_resolution,gl_FragCoord.xy, v_cameraMatrix);
     vec3 eye = v_cameraPosition;
 
-    march(eye,direction,0);
+	for (int sampleNumber = 1; sampleNumber < NUM_OF_SAMPLES+1; sampleNumber++){
+		march(eye,direction,1,sampleNumber);
+		pixelColor += samplePixelColor;
+		samplePixelColor = vec3(0.0,0.0,0.0);
+	}
 
-		gl_FragColor = vec4(pixelColor,1.0);
+	pixelColor = pixelColor/NUM_OF_SAMPLES;
+
+	gl_FragColor = vec4(pixelColor,1.0);
 		//float rnd = random( gl_FragCoord.xy/v_resolution.xy );
 
 		//vec3 hemisphereSample = sampleHemisphere(rnd,fract(rnd/10));
