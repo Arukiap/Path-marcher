@@ -8,7 +8,7 @@
 
 
 //System resolution in pixels
-#define SCREEN_WIDTH 1200
+#define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
 #ifdef _WIN32
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
     Mesh mesh(vertices,sizeof(vertices)/sizeof(vertices[0]));
 
     //add into display class
-    Camera camera(glm::vec3(0.6f,0.3f,-1.5f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,90.0f,0.01f);  
+    Camera camera(glm::vec3(1.0f,0.5f,2.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f,1.0f,0.0f),-90.0f,0.0f,120.0f,0.01f);  
     
     //Create model matrix
     glm::mat4 model = glm::mat4(1.0f);
