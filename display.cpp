@@ -46,37 +46,50 @@ void Display::Clear(float r, float g, float b, float a){
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Display::ListenInput(Camera *camera){
+//Listens to keyboard and mouse input and returns true if keyboard or mouse were clicked
+bool Display::ListenInput(Camera *camera){
     SDL_Event e;
+
+    bool hasReceivedAnyInput = false;
 
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 
+    int previous_mouseX = camera->m_currentMouseX, previous_mouseY = camera->m_currentMouseY;
+
     const Uint32 mousestate = SDL_GetRelativeMouseState(&camera->m_currentMouseX,&camera->m_currentMouseY);
+
+    if((previous_mouseX != camera->m_currentMouseX) || (previous_mouseY != camera->m_currentMouseY)) hasReceivedAnyInput = true;
 
     camera->updateYawAndPitch(0.1f);
 
     if(keystate[SDL_SCANCODE_W]){
-        camera->moveFront();    
+        camera->moveFront();  
+        hasReceivedAnyInput = true;  
     }
 
     if(keystate[SDL_SCANCODE_S]){
         camera->moveBack();   
+        hasReceivedAnyInput = true;
     }
 
     if(keystate[SDL_SCANCODE_A]){
-        camera->moveLeft();    
+        camera->moveLeft();  
+        hasReceivedAnyInput = true;   
     }
 
     if(keystate[SDL_SCANCODE_D]){
         camera->moveRight();   
+        hasReceivedAnyInput = true; 
     }
 
     if(keystate[SDL_SCANCODE_SPACE]){
         camera->moveUp();   
+        hasReceivedAnyInput = true; 
     }
 
     if(keystate[SDL_SCANCODE_LCTRL]){
         camera->moveDown();   
+        hasReceivedAnyInput = true; 
     }
 
      while(SDL_PollEvent(&e)){
@@ -86,10 +99,13 @@ void Display::ListenInput(Camera *camera){
                 break;
             case SDL_MOUSEWHEEL:
                 camera->zoom(e.wheel.y,5);
+                hasReceivedAnyInput = true; 
                 break;
             default: break;
         }
     }
+
+    return hasReceivedAnyInput;
 }
 
 bool Display::IsClosed(){

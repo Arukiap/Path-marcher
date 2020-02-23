@@ -12,7 +12,7 @@ class Display {
 
         void Clear(float r, float g, float b, float a);
         void Update();
-        void ListenInput(Camera *camera);
+        bool ListenInput(Camera *camera);
         bool IsClosed();
 
         virtual ~Display();

@@ -1,5 +1,7 @@
 #include "shader.h"
 #include "glm/gtc/type_ptr.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 static GLuint CreateShader(const std::string& text, GLenum shaderType);
 static std::string LoadShader(const std::string& fileName);
@@ -57,6 +59,66 @@ void Shader::setVec3(const GLchar* name, glm::vec3 value){
     glUseProgram(program);
     GLint uniformLocation = glGetUniformLocation(program,name);
     glUniform3f(uniformLocation,value.x,value.y,value.z);
+}
+
+void Shader::loadTexture(const GLchar* pathname, const GLchar* name){
+    glGenTextures(1, &this->loadedTexture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,this->loadedTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(pathname, &width, &height, &nrChannels, 0); 
+
+    if(data){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        //glGenerateMipmap(GL_TEXTURE_2D);
+        glUseProgram(program);
+        GLint uniformLocation = glGetUniformLocation(program,name);
+        glUniform1i(uniformLocation,0);
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+}
+
+void Shader::createRenderTarget(const int screenWidth, const int screenHeight){
+    //Create Frame buffer object:
+    glGenFramebuffers(1,&this->framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER,this->framebuffer);
+
+    //Create empty OUTPUT texture which will contain the RGB output of the shader
+    glGenTextures(1,&this->outputTexture);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, this->outputTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, screenWidth, screenHeight, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glUseProgram(program);
+    //GLint uniformLocation = glGetUniformLocation(program,"outputTexture");
+    //glUniform1i(uniformLocation,1);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->outputTexture, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+}
+
+void Shader::createInputTarget(const int screenWidth, const int screenHeight){
+    //Create empty texture which will contain the RGB input of the shader
+    glGenTextures(1,&this->inputTexture);
+    glActiveTexture(GL_TEXTURE0 + 2);
+    glBindTexture(GL_TEXTURE_2D, this->inputTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, screenWidth, screenHeight, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    GLint uniformLocation = glGetUniformLocation(program,"inputTexture");
+    glUniform1i(uniformLocation,1);
+}
+
+void Shader::copyOutputToInputTexture(const int screenWidth, const int screenHeight){
+    //glActiveTexture(GL_TEXTURE2);
+    glCopyTextureSubImage2D(this->outputTexture,0,0,0,0,0,screenWidth,screenHeight);
 }
 
 static GLuint CreateShader(const std::string& text, GLenum shaderType){
