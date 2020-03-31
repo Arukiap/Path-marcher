@@ -29,15 +29,56 @@ Furthermore, it implements diffuse, specular and refractive materials, and even 
 
 In order to compile and run, run the following command in your console according to your operating system:
 
-## Windows users:
+## Building on Linux
+
+### Dependencies
+
+- Make sure you have the latest legacy drivers installed for you graphics card.
+
+Install the following dependencies on your machine:
+
+**SDL2** - *Cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL and Direct3D*
 ```
-g++ -g *.cpp -I include\\ -Llib -lglew32s -lSDL2main -lSDL2 -o fractals.exe -lopengl32
-```
-## Linux users:
-```
-g++ -g *.cpp -I include/ -Llib -lGLEW -lSDL2main -lSDL2 -o fractals.out -lOpenGL
+sudo apt-get install libsdl2-dev
 ```
 
-Note: While the windows libraries are all included in this project, you will need to install those refered in the command for linux system if you are running this on linux. These are GLEW, SDL2 and OpenGL.
+**GLEW** - OpenGL extension manager
+```
+sudo apt-get install libglew-dev
+```
 
-Alternatively, you can also compile and run in a simpler manner if you are running Visual Studio Code. Just open the project on VSCode and press CTRL+Shift+B. This will run an automated task to compile and run the project immediately.
+### Compiling and Running
+
+If you are using Visual Studio Code, it is as simple as pressing Ctrl + Shift + B to run the compilation and run tasks consecutively.
+
+To compile:
+```
+g++ -g \*.cpp -I include/ -Llib -lGLEW -lSDL2main -lSDL2 -o main.cpp.out -lOpenGL
+```
+To run:
+```
+./main.cpp.out
+```
+
+## Building on Windows
+
+### Dlls and Mingw
+
+In order to build this base application on windows you need to first move the files in the `dlls` directory to the root folder of the application.
+
+You also need to install the mingw compiler in your machine and set its `bin` folder path on the global environment PATH variable.
+
+### Compiling and Running
+
+You are now ready to compile and run the application. If you are using Visual Studio Code, there is already a task available that compiles and runs the code consecutively if you press the Ctrl + Shift + B key combination inside VScode.
+
+If you are using another code editor, please refer to the next commands (assuming you are running windows powershell):
+
+To compile:
+```
+g++ -g \*.cpp -I include\\ -Llib -lglew32s -lSDL2main -lSDL2 -o main.cpp.exe -lopengl32
+```
+To run:
+```
+.\\main.cpp.exe
+```
