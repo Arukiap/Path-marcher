@@ -75,7 +75,6 @@ void Shader::loadTexture(const GLchar* pathname, const GLchar* name){
 
     if(data){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        //glGenerateMipmap(GL_TEXTURE_2D);
         glUseProgram(program);
         GLint uniformLocation = glGetUniformLocation(program,name);
         glUniform1i(uniformLocation,0);
@@ -98,8 +97,6 @@ void Shader::createRenderTarget(const int screenWidth, const int screenHeight){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glUseProgram(program);
-    //GLint uniformLocation = glGetUniformLocation(program,"outputTexture");
-    //glUniform1i(uniformLocation,1);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->outputTexture, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
 }
@@ -117,7 +114,6 @@ void Shader::createInputTarget(const int screenWidth, const int screenHeight){
 }
 
 void Shader::copyOutputToInputTexture(const int screenWidth, const int screenHeight){
-    //glActiveTexture(GL_TEXTURE2);
     glCopyTextureSubImage2D(this->outputTexture,0,0,0,0,0,screenWidth,screenHeight);
 }
 

@@ -16,6 +16,7 @@ class Camera {
         void moveDown();
         void zoom(int zoomDirection, float zoomFactor);
         void updateYawAndPitch(float sensitivity);
+        void updateSpeed(float speed);
         float getFov(){
             return m_fov;
         }

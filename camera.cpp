@@ -71,3 +71,7 @@ void Camera::updateYawAndPitch(float sensitivity){
     m_front = glm::normalize(front);
     m_up = glm::cross(front,right);
 }
+
+void Camera::updateSpeed(float speed){
+    m_speed = speed;
+}
