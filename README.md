@@ -2,7 +2,7 @@
 
 # Path marcher
 
-Path marcher is a real-time GPU-accelerated path tracer that uses the ray marching technique in order to compute intersections with scene objects.
+Path marcher is a real-time GPU-accelerated path tracer that uses the ray marching technique in order to compute intersections with scene objects. It is the final model result of my **Master's thesis**. [You can read the paper here](https://github.com/Arukiap/Path-marcher/blob/master/Paper.pdf).
 
 The application is built using C++, OpenGL and GLSL.
 
